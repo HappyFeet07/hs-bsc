@@ -1,6 +1,55 @@
-type ExampleEntity @entity {
+type HighstreetProperty @entity {
   id: ID!
-  count: BigInt!
-  account: Bytes! # address
-  operator: Bytes! # address
+  user: Bytes! # address
+  highEth: BigDecimal! # uint256
+  duck: [BigInt!]
+  assets: [BigInt!]
+}
+
+type AssetsTransferBatch @entity {
+  id: ID!
+  from: Bytes!
+  to: Bytes!
+  ids: [BigInt!]!
+  amounts: [BigInt!]!
+  timestamp: BigInt!
+}
+
+type AssetsTransferSingle @entity {
+  id: ID!
+  from: Bytes!
+  to: Bytes!
+  tokenId: BigInt!
+  amount: BigInt!
+  timestamp: BigInt!
+}
+
+type DuckOwner @entity {
+  id: ID!
+  tokenId: BigInt
+  amount: BigInt
+  owner: Bytes
+}
+
+type AssetsOwner @entity {
+  id: ID!
+  tokenId: BigInt
+  amount: BigInt
+  owner: Bytes
+}
+
+type Transfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
+  timestamp: BigInt!
+}
+
+type DuckNFTTransfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  timestamp: BigInt!
 }

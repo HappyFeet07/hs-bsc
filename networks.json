@@ -1,7 +1,24 @@
 {
+  "mainnet": {
+    "HighstreetAssets": {
+      "address": "0x6aAB8F32C35177e7B01b957c3a4e672faD924f76",
+      "startBlock": 15499860
+    },
+    "HIGH": {
+      "address": "0x71Ab77b7dbB4fa7e017BC15090b2163221420282",
+      "startBlock": 13395328
+    },
+    "DuckNFT": {
+      "address": "0x78f190eFe7B9198b76207F14d90ba96FB782680e",
+      "startBlock": 13242528
+    }
+  },
   "bsc": {
     "HighstreetAssets": {
       "address": "0x423d71EebCa0a870C9Bc0adC196f72183411f52c"
+    },
+    "HIGH": {
+      "address": "0x5f4Bde007Dc06b867f86EBFE4802e34A1fFEEd63"
     }
   }
 }

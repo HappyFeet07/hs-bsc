@@ -1,85 +1,89 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { Address, BigInt, Entity } from "@graphprotocol/graph-ts"
 import {
-  HighstreetAssets,
-  ApprovalForAll,
-  MinterRoleGranted,
-  MinterRoleRevoked,
-  OwnershipTransferred,
-  SetMaxSupply,
-  TransferBatch,
-  TransferSingle,
-  URI,
-  UpdateBaseUri
+  TransferBatch as TransferBatchEvent,
+  TransferSingle as TransferSingleEvent,
 } from "../generated/HighstreetAssets/HighstreetAssets"
-import { ExampleEntity } from "../generated/schema"
+import {
+  initializeHsProperty,
+  updateAssetInProperty
+} from "./common"
+import {
+  HighstreetProperty, 
+  AssetsTransferBatch,
+  AssetsTransferSingle
+} from "../generated/schema"
 
-export function handleApprovalForAll(event: ApprovalForAll): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+export function handleTransferBatch(event: TransferBatchEvent): void {
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+  let eventEntity = new AssetsTransferBatch(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  eventEntity.from = event.params.from
+  eventEntity.to = event.params.to
+  eventEntity.ids = event.params.ids
+  eventEntity.amounts = event.params.values
+  eventEntity.timestamp = event.block.timestamp
+  eventEntity.save()
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+  const sender = event.params.from
+  if (sender != Address.zero()) {
+    let senderEntity = HighstreetProperty.load(sender.toHex())
+    if (!senderEntity) {
+      senderEntity = initializeHsProperty(sender)
+    } else {
+      senderEntity = updateAssetInProperty(senderEntity, event.params.ids, false)
+    }
+    senderEntity.save()
   }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.account = event.params.account
-  entity.operator = event.params.operator
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.balanceOf(...)
-  // - contract.balanceOfBatch(...)
-  // - contract.decimals(...)
-  // - contract.exists(...)
-  // - contract.isApprovedForAll(...)
-  // - contract.isLimited(...)
-  // - contract.maxSupply(...)
-  // - contract.minters(...)
-  // - contract.name(...)
-  // - contract.owner(...)
-  // - contract.supportsInterface(...)
-  // - contract.symbol(...)
-  // - contract.totalSupply(...)
-  // - contract.uri(...)
+  const receiver = event.params.to
+  let receiverEntity = HighstreetProperty.load(receiver.toHex())
+  if (!receiverEntity) {
+    receiverEntity = initializeHsProperty(receiver)
+  }
+  receiverEntity = updateAssetInProperty(receiverEntity, event.params.ids, true)
+  receiverEntity.save()
+  
+  /*for (let i = 0; i < event.params.ids.length; i++) {
+    let id = event.transaction.to!.toHex() + event.params.to.toHex() + event.params.ids[i]
+    let OwnerEntity = NFTOwner.load(id)
+    if (!OwnerEntity) {
+      OwnerEntity = new NFTOwner(id)
+      OwnerEntity.collections = "Highstreet-assets"
+      OwnerEntity.tokenId = event.params.ids[i]
+    }
+    OwnerEntity.amount = parseInt(event.params.values[i].toString())
+    OwnerEntity.save()
+  }*/
 }
 
-export function handleMinterRoleGranted(event: MinterRoleGranted): void {}
+export function handleTransferSingle(event: TransferSingleEvent): void {
+  let eventEntity = new AssetsTransferSingle(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  eventEntity.from = event.params.from
+  eventEntity.to = event.params.to
+  eventEntity.tokenId = event.params.id
+  eventEntity.amount = event.params.value
+  eventEntity.timestamp = event.block.timestamp
+  eventEntity.save()
 
-export function handleMinterRoleRevoked(event: MinterRoleRevoked): void {}
+  const sender = event.params.from
+  if (sender != Address.zero()) {
+    let senderEntity = HighstreetProperty.load(sender.toHex())
+    if (!senderEntity) {
+      senderEntity = initializeHsProperty(sender)
+    } else {
+      senderEntity = updateAssetInProperty(senderEntity, [event.params.id], false)
+    }
+    senderEntity.save()
+  }
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
-
-export function handleSetMaxSupply(event: SetMaxSupply): void {}
-
-export function handleTransferBatch(event: TransferBatch): void {}
-
-export function handleTransferSingle(event: TransferSingle): void {}
-
-export function handleURI(event: URI): void {}
-
-export function handleUpdateBaseUri(event: UpdateBaseUri): void {}
+  const receiver = event.params.to
+  let receiverEntity = HighstreetProperty.load(receiver.toHex())
+  if (!receiverEntity) {
+    receiverEntity = initializeHsProperty(receiver)
+  }
+  receiverEntity = updateAssetInProperty(receiverEntity, [event.params.id], true)
+  receiverEntity.save()
+}

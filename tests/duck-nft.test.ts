@@ -83,7 +83,7 @@ describe("handleDuckNFTTransfer()", () => {
   afterAll(() => { clearStore() })
 
   test("handler should save DuckTransfer Event", () => {
-    let id = "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-NFTTransfer-1"
+    let id = "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-DuckTransfer-1"
     assert.entityCount("DuckNFTTransfer", 1)
     assert.fieldEquals("DuckNFTTransfer", id, "from", sender)
     assert.fieldEquals("DuckNFTTransfer", id, "to", receiver)
@@ -123,6 +123,17 @@ describe("handleDuckNFTTransfer()", () => {
       test("handler should update duck balance after transfer back", () => {
         assert.fieldEquals("HighstreetProperty", sender, "duck", "[" + tokenId + "]")
         assert.fieldEquals("HighstreetProperty", receiver, "duck", "[]")
+      })
+      test("handler should add extra token after minted by zero address", () => {
+        const transferEvent = createDuckNFTTransferEvent(Address.zero(), Address.fromString(sender), BigInt.fromString("7747"))
+        handleDuckNFTTransfer(transferEvent)
+        assert.fieldEquals("HighstreetProperty", sender, "duck", "[" + "7747, " + tokenId + "]")
+      })
+      test("handler should remove token after sent", () => {
+        const transferEvent = createDuckNFTTransferEvent(Address.fromString(sender), Address.fromString(receiver), BigInt.fromString("7747"))
+        handleDuckNFTTransfer(transferEvent)
+        assert.fieldEquals("HighstreetProperty", sender, "duck", "[" + tokenId + "]")
+        assert.fieldEquals("HighstreetProperty", receiver, "duck", "[7747]")
       })
     })
   })

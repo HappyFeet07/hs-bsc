@@ -62,6 +62,6 @@ dataSources:
         - name: DuckNFT
           file: ./abis/DuckNFT.json
       eventHandlers:
-        - event: DuckNFTTransfer(indexed address,indexed address,indexed uint256)
+        - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleDuckNFTTransfer
       file: ./src/duck-nft.ts

@@ -16,7 +16,7 @@ import {
 export function handleTransferBatch(event: TransferBatchEvent): void {
 
   let eventEntity = new AssetsTransferBatch(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+    event.transaction.hash.toHex() + "-AssetsTransfer-" + event.logIndex.toString()
   )
   eventEntity.from = event.params.from
   eventEntity.to = event.params.to
@@ -59,7 +59,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
 
 export function handleTransferSingle(event: TransferSingleEvent): void {
   let eventEntity = new AssetsTransferSingle(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+    event.transaction.hash.toHex() + "-AssetsTransfer-" + event.logIndex.toString()
   )
   eventEntity.from = event.params.from
   eventEntity.to = event.params.to

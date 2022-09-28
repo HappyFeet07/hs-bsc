@@ -16,7 +16,7 @@ import {
 export function handleDuckNFTTransfer(event: DuckNFTTransferEvent): void {
 
   let eventEntity = new DuckNFTTransfer(
-    event.transaction.hash.toHex() + "-NFTTransfer-" + event.logIndex.toString()
+    event.transaction.hash.toHex() + "-DuckTransfer-" + event.logIndex.toString()
   )
   eventEntity.from = event.params.from
   eventEntity.to = event.params.to
